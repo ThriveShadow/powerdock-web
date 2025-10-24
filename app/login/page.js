@@ -85,7 +85,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-4">
+    <div className="h-[100dvh] flex flex-col justify-center items-center bg-gray-50 px-4 overflow-hidden">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-6 space-y-4">
         <h1 className="text-2xl font-semibold text-center text-gray-800">
           {isRegister ? "Create an account" : "Welcome back"}
