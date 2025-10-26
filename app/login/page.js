@@ -19,16 +19,27 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Check if already logged in
+  // ✅ Check auth state and user profile completeness
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
-        if (!snap.exists()) router.push("/onboarding");
-        else router.push("/dashboard");
+
+        if (!snap.exists()) {
+          router.push("/onboarding");
+          return;
+        }
+
+        const data = snap.data();
+        if (!data.name || !data.phone) {
+          router.push("/onboarding");
+        } else {
+          router.push("/dashboard");
+        }
       }
     });
+
     return () => unsub();
   }, [router]);
 
@@ -41,20 +52,26 @@ export default function LoginPage() {
       let userCred;
       if (isRegister)
         userCred = await createUserWithEmailAndPassword(auth, email, password);
-      else userCred = await signInWithEmailAndPassword(auth, email, password);
+      else
+        userCred = await signInWithEmailAndPassword(auth, email, password);
 
       const user = userCred.user;
       const userRef = doc(db, "users", user.uid);
       const snap = await getDoc(userRef);
+
+      // ✅ Check if user doc exists and has complete info
       if (!snap.exists()) {
         await setDoc(userRef, {
           email: user.email,
           balance: 0,
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         });
         router.push("/onboarding");
       } else {
-        router.push("/dashboard");
+        const data = snap.data();
+        if (!data.name || !data.phone) router.push("/onboarding");
+        else router.push("/dashboard");
       }
     } catch (err) {
       console.error(err);
@@ -70,15 +87,21 @@ export default function LoginPage() {
       const user = result.user;
       const ref = doc(db, "users", user.uid);
       const snap = await getDoc(ref);
+
       if (!snap.exists()) {
         await setDoc(ref, {
           email: user.email,
           name: user.displayName || "",
           balance: 0,
           createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
         });
         router.push("/onboarding");
-      } else router.push("/dashboard");
+      } else {
+        const data = snap.data();
+        if (!data.name || !data.phone) router.push("/onboarding");
+        else router.push("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     }
