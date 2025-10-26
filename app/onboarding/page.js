@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { db, auth } from "@/lib/firebase";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -22,7 +23,6 @@ export default function Onboarding() {
     const user = auth.currentUser;
     if (!user) return;
 
-    // Phone validation
     if (!isValidPhone(phone)) {
       setError("Please enter a valid phone number (7–15 digits, numbers only).");
       setLoading(false);
@@ -45,52 +45,70 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6">
-      <h1 className="text-2xl font-semibold mb-4">Complete your profile</h1>
-
-      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
-        <input
-          type="text"
-          placeholder="Full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="p-2 border rounded-lg"
-        />
-
-        <div className="flex gap-2">
-          <select
-            value={countryCode}
-            onChange={(e) => setCountryCode(e.target.value)}
-            className="p-2 border rounded-lg w-24"
-          >
-            <option value="+62">🇮🇩 +62</option>
-            <option value="+60">🇲🇾 +60</option>
-            <option value="+65">🇸🇬 +65</option>
-            <option value="+1">🇺🇸 +1</option>
-            <option value="+81">🇯🇵 +81</option>
-          </select>
-
+    <div className="min-h-screen flex flex-col justify-center items-center px-6 bg-gradient-to-b from-[#FFF8E1] to-[#FFE082]">
+      {/* Logo */}
+      <img
+        src="/logo.png"
+        alt="PowerDock Logo"
+        className="h-12 sm:h-16 mb-6 object-contain"
+      />
+  
+      {/* Card */}
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-[#FFE082] p-6">
+        <h1 className="text-2xl font-bold text-center text-[#FF6F00] mb-6">
+          Complete Your Profile
+        </h1>
+  
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
-            type="tel"
-            placeholder="Phone number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+            type="text"
+            placeholder="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
-            className="flex-1 p-2 border rounded-lg"
+            className="p-2 border border-[#FFE082] rounded-lg focus:ring focus:ring-[#FFB300]/50 focus:outline-none w-full"
           />
-        </div>
+  
+          {/* ✅ Responsive phone input */}
+          <div className="flex items-center gap-2 w-full min-w-0">
+  <select
+    value={countryCode}
+    onChange={(e) => setCountryCode(e.target.value)}
+    className="p-2 border border-[#FFE082] rounded-lg bg-white focus:ring focus:ring-[#FFB300]/50 focus:outline-none w-[85px] flex-shrink-0"
+  >
+    <option value="+62">🇮🇩 +62</option>
+    <option value="+60">🇲🇾 +60</option>
+    <option value="+65">🇸🇬 +65</option>
+    <option value="+1">🇺🇸 +1</option>
+    <option value="+81">🇯🇵 +81</option>
+  </select>
 
-        {error && <p className="text-red-500 text-sm">{error}</p>}
+  <input
+    type="tel"
+    placeholder="Phone number"
+    value={phone}
+    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+    required
+    className="p-2 border border-[#FFE082] rounded-lg flex-1 focus:ring focus:ring-[#FFB300]/50 focus:outline-none min-w-0"
+  />
+</div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-        >
-          {loading ? "Saving..." : "Continue"}
-        </button>
-      </form>
+  
+          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+  
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-[#FFB300] text-white py-2 rounded-lg font-semibold hover:bg-[#FFA000] transition disabled:opacity-60"
+          >
+            {loading ? "Saving..." : "Continue"}
+          </button>
+        </form>
+      </div>
+  
+      <p className="text-xs text-gray-500 mt-8">
+        © 2025 PowerDock — Rent. Charge. Go.
+      </p>
     </div>
   );
 }

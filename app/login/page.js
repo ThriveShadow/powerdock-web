@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Check auth state and user profile completeness
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -32,14 +31,10 @@ export default function LoginPage() {
         }
 
         const data = snap.data();
-        if (!data.name || !data.phone) {
-          router.push("/onboarding");
-        } else {
-          router.push("/dashboard");
-        }
+        if (!data.name || !data.phone) router.push("/onboarding");
+        else router.push("/dashboard");
       }
     });
-
     return () => unsub();
   }, [router]);
 
@@ -52,16 +47,14 @@ export default function LoginPage() {
       let userCred;
       if (isRegister)
         userCred = await createUserWithEmailAndPassword(auth, email, password);
-      else
-        userCred = await signInWithEmailAndPassword(auth, email, password);
+      else userCred = await signInWithEmailAndPassword(auth, email, password);
 
       const user = userCred.user;
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
 
-      // ✅ Check if user doc exists and has complete info
       if (!snap.exists()) {
-        await setDoc(userRef, {
+        await setDoc(ref, {
           email: user.email,
           balance: 0,
           createdAt: serverTimestamp(),
@@ -74,7 +67,6 @@ export default function LoginPage() {
         else router.push("/dashboard");
       }
     } catch (err) {
-      console.error(err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -108,17 +100,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col justify-center items-center bg-gray-50 px-4 overflow-hidden">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-lg p-6 space-y-4">
-        <h1 className="text-2xl font-semibold text-center text-gray-800">
-          {isRegister ? "Create an account" : "Welcome back"}
+    <div className="min-h-screen bg-gradient-to-b from-[#FFF8E1] to-[#FFE082] flex flex-col justify-center items-center px-4">
+      {/* Logo */}
+      <img
+        src="/logo.png"
+        alt="PowerDock Logo"
+        className="h-12 sm:h-16 mb-6 object-contain"
+      />
+
+      {/* Card */}
+      <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 space-y-4 border border-[#FFE082]">
+        <h1 className="text-2xl font-bold text-center text-[#FF6F00]">
+          {isRegister ? "Create your account" : "Welcome back!"}
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="email"
             placeholder="Email"
-            className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+            className="w-full border border-[#FFE082] rounded-lg p-2 focus:ring focus:ring-[#FFB300]/50 focus:outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -126,17 +126,19 @@ export default function LoginPage() {
           <input
             type="password"
             placeholder="Password"
-            className="w-full border rounded-lg p-2 focus:ring focus:ring-blue-300"
+            className="w-full border border-[#FFE082] rounded-lg p-2 focus:ring focus:ring-[#FFB300]/50 focus:outline-none"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <p className="text-red-600 text-sm">{error}</p>}
+          {error && (
+            <p className="text-red-600 text-sm text-center">{error}</p>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-60"
+            className="w-full bg-[#FFB300] text-white py-2 rounded-lg font-semibold hover:bg-[#FFA000] transition disabled:opacity-60"
           >
             {loading
               ? isRegister
@@ -156,22 +158,27 @@ export default function LoginPage() {
 
         <button
           onClick={handleGoogle}
-          className="w-full border flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-gray-100 transition"
+          className="w-full border border-[#FFE082] flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-[#FFF3E0] transition"
         >
           <img src="/google.svg" alt="Google" className="w-5 h-5" />
-          Sign in with Google
+          <span className="text-gray-700 font-medium">Sign in with Google</span>
         </button>
 
-        <p className="text-sm text-center text-gray-500 mt-3">
+        <p className="text-sm text-center text-gray-600 mt-3">
           {isRegister ? "Already have an account?" : "Don’t have an account?"}{" "}
           <button
             onClick={() => setIsRegister(!isRegister)}
-            className="text-blue-600 hover:underline"
+            className="text-[#FF6F00] font-semibold hover:underline"
           >
             {isRegister ? "Sign in" : "Create one"}
           </button>
         </p>
       </div>
+
+      {/* Footer note */}
+      <p className="text-xs text-gray-500 mt-8">
+        © 2025 PowerDock — Rent. Charge. Go.
+      </p>
     </div>
   );
 }
